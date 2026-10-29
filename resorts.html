@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Thanksgiving Week Resort Comparison</title>
+  
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
   <style>
     :root {
       --bg-page: #f6f8fa;
@@ -16,6 +21,8 @@
       --accent-blue-light: #e0f2fe;
       --accent-amber: #d97706;
       --accent-amber-light: #fef3c7;
+      --accent-purple: #7c3aed;
+      --accent-purple-light: #f5f3ff;
       --score-green-bg: #dcfce7;
       --score-green-text: #166534;
       --score-green-border: #bbf7d0;
@@ -48,7 +55,7 @@
       color: var(--text-main);
       font-family: var(--font-family);
       line-height: 1.5;
-      padding: 0 0 48px 0;
+      padding: 0 0 54px 0;
       font-size: 15px;
     }
 
@@ -56,7 +63,7 @@
     header {
       background: #ffffff;
       border-bottom: 1px solid var(--border-color);
-      padding: 16px 16px 12px 16px;
+      padding: 16px 16px 14px 16px;
       position: static;
     }
 
@@ -254,6 +261,185 @@
       padding: 0 14px;
     }
 
+    /* Interactive Map on Top (Non-sticky) */
+    .map-container-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .map-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: #ffffff;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .map-top-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .map-toggle-btn {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      background: var(--accent-blue-light);
+      border: 1px solid #bae6fd;
+      border-radius: 6px;
+      padding: 3px 9px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .map-toggle-btn:hover {
+      background: #bae6fd;
+    }
+
+    #resort-map {
+      height: 250px;
+      width: 100%;
+      background: #f1f5f9;
+      z-index: 1;
+    }
+
+    .map-legend {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 8px 10px;
+      background: #f8fafc;
+      border-top: 1px solid #f1f5f9;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .legend-dot.desert { background: #d97706; }
+    .legend-dot.coastal { background: #0284c7; }
+    .legend-dot.anaheim { background: #7c3aed; }
+
+    /* Custom Leaflet Map Markers */
+    .map-pin-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 2px 7px rgba(0,0,0,0.22);
+      border: 2px solid #ffffff;
+      color: #ffffff;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.15s ease;
+    }
+
+    .map-pin-pill:hover, .map-pin-pill:active {
+      transform: scale(1.08);
+    }
+
+    .map-pin-pill.desert {
+      background: #d97706;
+    }
+
+    .map-pin-pill.coastal {
+      background: #0284c7;
+    }
+
+    .map-pin-pill.anaheim {
+      background: #7c3aed;
+    }
+
+    /* Popup card */
+    .leaflet-popup-content-wrapper {
+      border-radius: 12px !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+      border: 1px solid #e2e8f0;
+    }
+    .leaflet-popup-content {
+      margin: 0 !important;
+      line-height: 1.4 !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    }
+    .map-popup-card {
+      padding: 12px 14px;
+      min-width: 210px;
+    }
+    .map-popup-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+    .map-popup-price {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0284c7;
+      margin-bottom: 3px;
+    }
+    .map-popup-tag {
+      font-size: 11px;
+      color: #475569;
+      margin-bottom: 3px;
+    }
+    .map-popup-jump {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 6px 10px;
+      background: #f1f5f9;
+      color: #0f172a;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid #cbd5e1;
+      margin-top: 6px;
+    }
+    .map-popup-jump:hover {
+      background: #e2e8f0;
+    }
+
+    /* Highlight pulse when jumping from map to card */
+    @keyframes highlightCard {
+      0% { box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.45); transform: translateY(-2px); }
+      70% { box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15); }
+      100% { box-shadow: var(--shadow-sm); transform: translateY(0); }
+    }
+    .card-highlight {
+      animation: highlightCard 1.6s ease-out;
+    }
+
     .count-indicator {
       font-size: 12px;
       font-weight: 600;
@@ -273,6 +459,7 @@
       overflow: hidden;
       box-shadow: var(--shadow-sm);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
+      scroll-margin-top: 20px;
     }
 
     .resort-card:hover {
@@ -344,7 +531,7 @@
       gap: 6px;
     }
 
-    /* Pricing & Dates Strip */
+    /* Pricing, Unit & Dates Strip */
     .price-strip {
       background: #f8fafc;
       border-top: 1px solid #f1f5f9;
@@ -353,6 +540,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .price-main {
@@ -373,15 +562,47 @@
       color: #64748b;
     }
 
+    .strip-badges {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
     .dates-badge {
       font-size: 12px;
       font-weight: 600;
       color: #334155;
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      padding: 5px 10px;
-      border-radius: 8px;
+      padding: 4px 8px;
+      border-radius: 6px;
       text-align: right;
+    }
+
+    .room-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #1e293b;
+    }
+
+    .room-pill.luxury {
+      background: #f5f3ff;
+      color: #6b21a8;
+      border-color: #ddd6fe;
+    }
+
+    .room-pill.caution {
+      background: #fef2f2;
+      color: #991b1b;
+      border-color: #fecaca;
     }
 
     /* Comparison Sections Inside Card */
@@ -389,7 +610,7 @@
       padding: 14px 16px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 13px;
     }
 
     .section-block {
@@ -513,7 +734,7 @@
       border: 1px solid #e2e8f0;
     }
 
-    /* Comparison Table View (Hidden by default on mobile cards, switchable) */
+    /* Comparison Table View */
     #matrix-view {
       display: none;
       background: #ffffff;
@@ -528,7 +749,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 12.5px;
-      min-width: 600px;
+      min-width: 680px;
     }
 
     th {
@@ -645,15 +866,15 @@
 </head>
 <body>
 
-  <!-- Sticky Mobile Header -->
+  <!-- Top Header (Non-sticky: scrolls with page) -->
   <header>
     <div class="header-content">
       <div class="badge-bar">
         <span class="trip-tag">Thanksgiving 2026</span>
-        <span class="trip-dates">Nov 20 – Nov 29</span>
+        <span class="trip-dates">Nov 20 – Nov 29 · 2 Adults + 3 Kids</span>
       </div>
       <h1>SoCal & Desert Resorts</h1>
-      <p class="subtitle">Side-by-side family comparison for boys' action, gym & tanning</p>
+      <p class="subtitle">Side-by-side family comparison for boys' action, gym, tanning & rooms</p>
 
       <div class="controls-wrapper">
         <!-- Search Input -->
@@ -661,7 +882,7 @@
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
-          <input type="text" id="search-input" class="search-input" placeholder="Search waterslide, peloton, pickleball..." aria-label="Search resorts">
+          <input type="text" id="search-input" class="search-input" placeholder="Search waterslide, peloton, 3 bath, pickleball..." aria-label="Search resorts">
           <button id="clear-search" class="clear-btn" aria-label="Clear search">&times;</button>
         </div>
 
@@ -673,6 +894,7 @@
           <button class="chip" data-filter="anaheim">🏰 Anaheim (1)</button>
           <button class="chip" data-filter="waterslide">🛝 Big Slides</button>
           <button class="chip" data-filter="topgym">🏋️ Top Gym (9+)</button>
+          <button class="chip" data-filter="sleeps8">🛏️ Sleeps 8</button>
         </div>
 
         <!-- Sort and View Switcher -->
@@ -701,6 +923,20 @@
   <!-- Main Content Area -->
   <main>
 
+    <!-- Interactive Map on Top (Non-sticky: scrolls naturally) -->
+    <section class="map-container-card" id="map-section" aria-label="Resort Locations Map">
+      <div class="map-top-bar">
+        <span class="map-top-title">📍 Resort Locations Map (8 Pins)</span>
+        <button id="toggle-map-btn" class="map-toggle-btn" aria-expanded="true">Hide Map</button>
+      </div>
+      <div id="resort-map"></div>
+      <div class="map-legend" id="map-legend">
+        <span class="legend-item"><span class="legend-dot desert"></span> ☀️ Desert (4)</span>
+        <span class="legend-item"><span class="legend-dot coastal"></span> 🌊 Coastal (3)</span>
+        <span class="legend-item"><span class="legend-dot anaheim"></span> 🏰 Anaheim (1)</span>
+      </div>
+    </section>
+
     <!-- Quick Skim Recaps -->
     <div class="quick-recap">
       <h3>⚡ Quick Category Winners</h3>
@@ -708,29 +944,29 @@
         <div class="recap-item">
           <div class="recap-label">☀️ Best Desert Sun & Value</div>
           <div class="recap-val">Westin Mission Hills</div>
-          <div class="recap-sub">$1,742 (Fri-Fri) · 155ft slide · 9/10 Gym</div>
+          <div class="recap-sub">$1,742 (Fri-Fri) · 155ft slide · 9/10 Gym · 2BR/2BA</div>
         </div>
         <div class="recap-item">
           <div class="recap-label">🏋️ Best Gym & Pure Luxury</div>
           <div class="recap-val">Four Seasons Aviara</div>
-          <div class="recap-sub">10/10 Gym · Pelotons · 83°F Pool</div>
+          <div class="recap-sub">10/10 Gym · 2BR/3BA (3 Baths!) · 83°F Pool</div>
         </div>
         <div class="recap-item">
           <div class="recap-label">🏆 Top Overall Rating</div>
           <div class="recap-val">Westin Desert Willow</div>
-          <div class="recap-sub">4.5★ TA · 159ft slide · Mountain sun</div>
+          <div class="recap-sub">4.5★ TA · 159ft slide · 2BR/2BA · Mountain sun</div>
         </div>
         <div class="recap-item">
           <div class="recap-label">🌊 Best Walkable Ocean Vibe</div>
           <div class="recap-val">Wyndham Oceanside</div>
-          <div class="recap-sub">10/10 Walkability · Steps to Pier</div>
+          <div class="recap-sub">10/10 Walkability · Steps to Pier · 2BR/2BA</div>
         </div>
       </div>
     </div>
 
     <div class="count-indicator">
       <span id="results-count">Showing 8 of 8 resorts</span>
-      <span style="font-size: 11px; color: #94a3b8;">Tap TripAdvisor or RedWeek to inspect</span>
+      <span style="font-size: 11px; color: #94a3b8;">Tap pins or listings to inspect</span>
     </div>
 
     <!-- Empty State -->
@@ -744,6 +980,7 @@
 
       <!-- 1. Club Wyndham Oceanside Pier -->
       <article class="resort-card" 
+        id="wyndham-oceanside"
         data-id="wyndham-oceanside"
         data-region="coastal"
         data-price="1745"
@@ -751,7 +988,9 @@
         data-boys="7.0"
         data-gym="6.0"
         data-tanning="5.0"
-        data-tags="compact game room ping pong sauna pier beach strand walkability coastal legoland">
+        data-sleeps="6"
+        data-baths="2"
+        data-tags="compact game room ping pong sauna pier beach strand walkability coastal legoland 2 bed 2 bath sleeps 6">
         
         <div class="card-top">
           <div class="card-meta-line">
@@ -769,10 +1008,22 @@
             <span class="price-amount">$1,745</span>
             <span class="price-sub">6 nights · ~$291/night</span>
           </div>
-          <div class="dates-badge">Sat 11/21 – Fri 11/27</div>
+          <div class="strip-badges">
+            <span class="room-pill">🛏️ 2 Bed / 2 Bath · Sleeps 6</span>
+            <div class="dates-badge">Sat 11/21 – Fri 11/27</div>
+          </div>
         </div>
 
         <div class="card-body">
+          <!-- Room Info -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🛏️</span> Villa & Room Configuration</span>
+              <span class="score-badge score-good">2 Bed / 2 Bath · Sleeps 6</span>
+            </div>
+            <p class="section-desc">Full 2-Bedroom villa with private balcony. King bed in master suite with whirlpool tub, 2 twin beds in second bedroom, plus living room queen sleeper sofa. Fully equipped kitchen and in-unit washer/dryer.</p>
+          </div>
+
           <!-- Boys Action -->
           <div class="section-block">
             <div class="section-header">
@@ -813,7 +1064,7 @@
         <div class="card-footer">
           <div class="links-group">
             <a href="https://www.tripadvisor.com/Search?q=Club+Wyndham+Oceanside+Pier" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
-            <a href="https://www.redweek.com/resort/P4865" target="_blank" rel="noopener" class="ref-link">RedWeek R1540703 ↗</a>
+            <a href="https://www.redweek.com/posting/R1540703" target="_blank" rel="noopener" class="ref-link">RedWeek R1540703 ↗</a>
           </div>
           <span class="ref-code">Ref: R1540703</span>
         </div>
@@ -821,6 +1072,7 @@
 
       <!-- 2. Westin Mission Hills Villas -->
       <article class="resort-card" 
+        id="westin-mission-hills"
         data-id="westin-mission-hills"
         data-region="desert"
         data-price="1742"
@@ -828,7 +1080,9 @@
         data-boys="10.0"
         data-gym="9.0"
         data-tanning="10.0"
-        data-tags="waterslide 155ft bowling arcade pinz peloton trx desert tanning rancho mirage courts pickleball basketball">
+        data-sleeps="8"
+        data-baths="2"
+        data-tags="waterslide 155ft bowling arcade pinz peloton trx desert tanning rancho mirage courts pickleball basketball 2 bed 2 bath sleeps 8 lockoff">
         
         <div class="card-top">
           <div class="card-meta-line">
@@ -846,10 +1100,22 @@
             <span class="price-amount">$1,742 <span style="font-size: 14px; font-weight: 500; color: #64748b;">(Fri-Fri)</span></span>
             <span class="price-sub">or $2,505 (Sun-Sun) · 7 nights</span>
           </div>
-          <div class="dates-badge">Fri 11/20 or Sun 11/22</div>
+          <div class="strip-badges">
+            <span class="room-pill">🛏️ 2 Bed / 2 Bath · Sleeps 8</span>
+            <div class="dates-badge">Fri 11/20 or Sun 11/22</div>
+          </div>
         </div>
 
         <div class="card-body">
+          <!-- Room Info -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🛏️</span> Villa & Room Configuration</span>
+              <span class="score-badge score-top">2 Bed / 2 Bath · Sleeps 8</span>
+            </div>
+            <p class="section-desc">Spacious 2-Bedroom lockoff villa layout. Master bedroom with King Westin Heavenly Bed and whirlpool bath; 2nd bedroom features a lockoff suite with Queen bed + sofa bed. Full kitchen plus kitchenette, living room sleeper sofa, and 2 private patios.</p>
+          </div>
+
           <!-- Boys Action -->
           <div class="section-block">
             <div class="section-header">
@@ -890,8 +1156,8 @@
         <div class="card-footer">
           <div class="links-group">
             <a href="https://www.tripadvisor.com/Search?q=Westin+Mission+Hills+Resort+Villas+Rancho+Mirage" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
-            <a href="https://www.redweek.com/resort/P2454" target="_blank" rel="noopener" class="ref-link">RedWeek R1473124 (Fri) ↗</a>
-            <a href="https://www.redweek.com/resort/P2454" target="_blank" rel="noopener" class="ref-link">RedWeek R1457998 (Sun) ↗</a>
+            <a href="https://www.redweek.com/posting/R1473124" target="_blank" rel="noopener" class="ref-link">RedWeek R1473124 (Fri) ↗</a>
+            <a href="https://www.redweek.com/posting/R1457998" target="_blank" rel="noopener" class="ref-link">RedWeek R1457998 (Sun) ↗</a>
           </div>
           <span class="ref-code">Refs: R1473124 / R1457998</span>
         </div>
@@ -899,6 +1165,7 @@
 
       <!-- 3. Westin Desert Willow Villas -->
       <article class="resort-card" 
+        id="westin-desert-willow"
         data-id="westin-desert-willow"
         data-region="desert"
         data-price="2741"
@@ -906,7 +1173,9 @@
         data-boys="9.5"
         data-gym="9.0"
         data-tanning="10.0"
-        data-tags="waterslide 159ft game room air hockey foosball westinworkout palm desert mountain sun luxury">
+        data-sleeps="8"
+        data-baths="2"
+        data-tags="waterslide 159ft game room air hockey foosball westinworkout palm desert mountain sun luxury 2 bed 2 bath sleeps 8 lockoff">
         
         <div class="card-top">
           <div class="card-meta-line">
@@ -924,10 +1193,22 @@
             <span class="price-amount">$2,741</span>
             <span class="price-sub">7 nights · ~$391/night</span>
           </div>
-          <div class="dates-badge">Sat 11/21 – Sat 11/28</div>
+          <div class="strip-badges">
+            <span class="room-pill">🛏️ 2 Bed / 2 Bath · Sleeps 8</span>
+            <div class="dates-badge">Sat 11/21 – Sat 11/28</div>
+          </div>
         </div>
 
         <div class="card-body">
+          <!-- Room Info -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🛏️</span> Villa & Room Configuration</span>
+              <span class="score-badge score-top">2 Bed / 2 Bath · Sleeps 8</span>
+            </div>
+            <p class="section-desc">Generous ~1,400+ sq ft 2-Bedroom lockoff villa. King Westin Heavenly Bed in master suite with soaking tub; second bedroom with King or two double beds plus private bath; living room with sleeper sofa. Full kitchen, washer/dryer, and mountain-view balcony.</p>
+          </div>
+
           <!-- Boys Action -->
           <div class="section-block">
             <div class="section-header">
@@ -968,7 +1249,7 @@
         <div class="card-footer">
           <div class="links-group">
             <a href="https://www.tripadvisor.com/Search?q=Westin+Desert+Willow+Villas+Palm+Desert" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
-            <a href="https://www.redweek.com/resort/P5594" target="_blank" rel="noopener" class="ref-link">RedWeek R1474498 ↗</a>
+            <a href="https://www.redweek.com/posting/R1474498" target="_blank" rel="noopener" class="ref-link">RedWeek R1474498 ↗</a>
           </div>
           <span class="ref-code">Ref: R1474498</span>
         </div>
@@ -976,6 +1257,7 @@
 
       <!-- 4. Marriott's Shadow Ridge II -->
       <article class="resort-card" 
+        id="marriott-shadow-ridge"
         data-id="marriott-shadow-ridge"
         data-region="desert"
         data-price="3069"
@@ -983,7 +1265,9 @@
         data-boys="9.5"
         data-gym="8.5"
         data-tanning="10.0"
-        data-tags="waterslide chuckwalla water cannons mini golf pickleball lap pool mirage fitness palm desert">
+        data-sleeps="8"
+        data-baths="2"
+        data-tags="waterslide chuckwalla water cannons mini golf pickleball lap pool mirage fitness palm desert 2 bed 2 bath sleeps 8 enclaves">
         
         <div class="card-top">
           <div class="card-meta-line">
@@ -1001,10 +1285,22 @@
             <span class="price-amount">$3,069</span>
             <span class="price-sub">7 nights · ~$438/night</span>
           </div>
-          <div class="dates-badge">Sun 11/22 – Sun 11/29</div>
+          <div class="strip-badges">
+            <span class="room-pill">🛏️ 2 Bed / 2 Bath · Sleeps 8</span>
+            <div class="dates-badge">Sun 11/22 – Sun 11/29</div>
+          </div>
         </div>
 
         <div class="card-body">
+          <!-- Room Info -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🛏️</span> Villa & Room Configuration</span>
+              <span class="score-badge score-top">2 Bed / 2 Bath · Sleeps 8</span>
+            </div>
+            <p class="section-desc">~1,250 sq ft 2-Bedroom villa (The Enclaves section). Master bedroom with King bed and oversized soaking tub; second bedroom with 2 double/queen beds and private bath; living room with sofa bed. Full kitchen, washer/dryer, and private balcony.</p>
+          </div>
+
           <!-- Boys Action -->
           <div class="section-block">
             <div class="section-header">
@@ -1045,7 +1341,7 @@
         <div class="card-footer">
           <div class="links-group">
             <a href="https://www.tripadvisor.com/Search?q=Marriott+Shadow+Ridge+Palm+Desert" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
-            <a href="https://www.redweek.com/resort/P4876" target="_blank" rel="noopener" class="ref-link">RedWeek R1517764 ↗</a>
+            <a href="https://www.redweek.com/posting/R1517764" target="_blank" rel="noopener" class="ref-link">RedWeek R1517764 ↗</a>
           </div>
           <span class="ref-code">Ref: R1517764</span>
         </div>
@@ -1053,6 +1349,7 @@
 
       <!-- 5. Marriott's Newport Coast Villas -->
       <article class="resort-card" 
+        id="marriott-newport-coast"
         data-id="marriott-newport-coast"
         data-region="coastal"
         data-price="3077"
@@ -1060,7 +1357,9 @@
         data-boys="9.0"
         data-gym="8.5"
         data-tanning="8.0"
-        data-tags="coastal luxury crystal cove ocean view theater arcade pickleball newport beach basketball">
+        data-sleeps="8"
+        data-baths="2"
+        data-tags="coastal luxury crystal cove ocean view theater arcade pickleball newport beach basketball 2 bed 2 bath sleeps 8">
         
         <div class="card-top">
           <div class="card-meta-line">
@@ -1078,10 +1377,22 @@
             <span class="price-amount">$3,077 <span style="font-size: 14px; font-weight: 500; color: #64748b;">(Fri-Fri)</span></span>
             <span class="price-sub">or $3,405 (Sat-Sat) · 7 nights</span>
           </div>
-          <div class="dates-badge">Fri 11/20 or Sat 11/21</div>
+          <div class="strip-badges">
+            <span class="room-pill">🛏️ 2 Bed / 2 Bath · Sleeps 8</span>
+            <div class="dates-badge">Fri 11/20 or Sat 11/21</div>
+          </div>
         </div>
 
         <div class="card-body">
+          <!-- Room Info -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🛏️</span> Villa & Room Configuration</span>
+              <span class="score-badge score-top">2 Bed / 2 Bath · Sleeps 8</span>
+            </div>
+            <p class="section-desc">~1,248 sq ft 2-Bedroom villa perched high on coastal bluffs. King master suite with soaking tub; second bedroom has a Queen bed and sofa bed; main living room features a queen sleeper sofa. Full gourmet kitchen, washer/dryer, and private balcony.</p>
+          </div>
+
           <!-- Boys Action -->
           <div class="section-block">
             <div class="section-header">
@@ -1122,8 +1433,8 @@
         <div class="card-footer">
           <div class="links-group">
             <a href="https://www.tripadvisor.com/Search?q=Marriott+Newport+Coast+Villas" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
-            <a href="https://www.redweek.com/resort/P1983" target="_blank" rel="noopener" class="ref-link">RedWeek R1539623 (Fri) ↗</a>
-            <a href="https://www.redweek.com/resort/P1983" target="_blank" rel="noopener" class="ref-link">RedWeek R1543281 (Sat) ↗</a>
+            <a href="https://www.redweek.com/posting/R1539623" target="_blank" rel="noopener" class="ref-link">RedWeek R1539623 (Fri) ↗</a>
+            <a href="https://www.redweek.com/posting/R1543281" target="_blank" rel="noopener" class="ref-link">RedWeek R1543281 (Sat) ↗</a>
           </div>
           <span class="ref-code">Refs: R1539623 / R1543281</span>
         </div>
@@ -1131,6 +1442,7 @@
 
       <!-- 6. Marriott's Desert Springs Villas -->
       <article class="resort-card" 
+        id="marriott-desert-springs"
         data-id="marriott-desert-springs"
         data-region="desert"
         data-price="3306"
@@ -1138,7 +1450,9 @@
         data-boys="9.0"
         data-gym="8.5"
         data-tanning="10.0"
-        data-tags="flamingos gondola jw marriott 7 pools desert big villas mini golf palm desert">
+        data-sleeps="8"
+        data-baths="2"
+        data-tags="flamingos gondola jw marriott 7 pools desert big villas mini golf palm desert 2 bed 2 bath sleeps 8 huge floorplan">
         
         <div class="card-top">
           <div class="card-meta-line">
@@ -1156,10 +1470,22 @@
             <span class="price-amount">$3,306</span>
             <span class="price-sub">7 nights · ~$472/night</span>
           </div>
-          <div class="dates-badge">Sat 11/21 – Sat 11/28</div>
+          <div class="strip-badges">
+            <span class="room-pill">🛏️ 2 Bed / 2 Bath · Sleeps 8</span>
+            <div class="dates-badge">Sat 11/21 – Sat 11/28</div>
+          </div>
         </div>
 
         <div class="card-body">
+          <!-- Room Info -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🛏️</span> Villa & Room Configuration</span>
+              <span class="score-badge score-top">2 Bed / 2 Bath · Sleeps 8 (Largest Floorplan)</span>
+            </div>
+            <p class="section-desc">Extra-spacious ~1,400–1,680 sq ft 2-Bedroom villa (some of the largest in Palm Desert). King master bedroom with Roman soaking tub; guest bedroom with 2 double beds and en-suite bath; living room with sleeper sofa. Full gourmet kitchen, dining area, and oversized private patio.</p>
+          </div>
+
           <!-- Boys Action -->
           <div class="section-block">
             <div class="section-header">
@@ -1200,7 +1526,7 @@
         <div class="card-footer">
           <div class="links-group">
             <a href="https://www.tripadvisor.com/Search?q=Marriott+Desert+Springs+Villas+Palm+Desert" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
-            <a href="https://www.redweek.com/resort/P1982" target="_blank" rel="noopener" class="ref-link">RedWeek R1530679 ↗</a>
+            <a href="https://www.redweek.com/posting/R1530679" target="_blank" rel="noopener" class="ref-link">RedWeek R1530679 ↗</a>
           </div>
           <span class="ref-code">Ref: R1530679</span>
         </div>
@@ -1208,6 +1534,7 @@
 
       <!-- 7. Club Wyndham Dolphin's Cove -->
       <article class="resort-card" 
+        id="wyndham-dolphins-cove"
         data-id="wyndham-dolphins-cove"
         data-region="anaheim"
         data-price="1742"
@@ -1215,7 +1542,9 @@
         data-boys="6.5"
         data-gym="5.0"
         data-tanning="6.0"
-        data-tags="disney disneyland anaheim toy story budget basic courtyard">
+        data-sleeps="6"
+        data-baths="1"
+        data-tags="disney disneyland anaheim toy story budget basic courtyard 2 bed 1 bath sleeps 6 one bathroom">
         
         <div class="card-top">
           <div class="card-meta-line">
@@ -1233,17 +1562,29 @@
             <span class="price-amount">$1,742</span>
             <span class="price-sub">7 nights · ~$248/night</span>
           </div>
-          <div class="dates-badge">Sat 11/21 – Sat 11/28</div>
+          <div class="strip-badges">
+            <span class="room-pill caution">⚠️ 2 Bed / 1 Bath · Sleeps 6</span>
+            <div class="dates-badge">Sat 11/21 – Sat 11/28</div>
+          </div>
         </div>
 
         <div class="card-body">
+          <!-- Room Info -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🛏️</span> Villa & Room Configuration</span>
+              <span class="score-badge score-caution">2 Bed / 1 Bath · Sleeps 6</span>
+            </div>
+            <p class="section-desc">2-Bedroom condo unit. King or Queen in master bedroom, 2 twin beds in second bedroom, and living room sleeper sofa. <span class="highlight-bold" style="color:#b91c1c;">Crucial limitation: Only 1 bathroom for all 5 guests.</span> Older condo-style layout with full kitchen.</p>
+          </div>
+
           <!-- Boys Action -->
           <div class="section-block">
             <div class="section-header">
               <span class="section-title"><span class="emoji">🏓</span> Boys' On-Site Action</span>
               <span class="score-badge score-caution">6.5 / 10 Small</span>
             </div>
-            <p class="section-desc">Small game room, outdoor putting green, and courtyard pool. Feels like an older condo complex. <span class="highlight-bold">Note: Only 1 bathroom in unit.</span></p>
+            <p class="section-desc">Small game room, outdoor putting green, and courtyard pool. Feels like an older condo complex. Adequate if you spend whole days at the theme parks.</p>
           </div>
 
           <!-- Gym Quality -->
@@ -1277,7 +1618,7 @@
         <div class="card-footer">
           <div class="links-group">
             <a href="https://www.tripadvisor.com/Search?q=Club+Wyndham+Dolphin+Cove+Anaheim" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
-            <a href="https://www.redweek.com/resort/P2775" target="_blank" rel="noopener" class="ref-link">RedWeek R1536245 ↗</a>
+            <a href="https://www.redweek.com/posting/R1536245" target="_blank" rel="noopener" class="ref-link">RedWeek R1536245 ↗</a>
           </div>
           <span class="ref-code">Ref: R1536245</span>
         </div>
@@ -1285,6 +1626,7 @@
 
       <!-- 8. Four Seasons Aviara -->
       <article class="resort-card" 
+        id="four-seasons-aviara"
         data-id="four-seasons-aviara"
         data-region="coastal"
         data-price="4222"
@@ -1292,7 +1634,9 @@
         data-boys="8.5"
         data-gym="10.0"
         data-tanning="8.5"
-        data-tags="luxury 5-star peloton heavy lifter carlsbad lagoon legoland driftwood spa 83F pool">
+        data-sleeps="8"
+        data-baths="3"
+        data-tags="luxury 5-star peloton heavy lifter carlsbad lagoon legoland driftwood spa 83F pool 2 bed 3 bath sleeps 8 three bathrooms">
         
         <div class="card-top">
           <div class="card-meta-line">
@@ -1301,7 +1645,7 @@
           </div>
           <h2 class="resort-title">Four Seasons Aviara</h2>
           <div class="vibe-callout">
-            <span>✨</span> <strong>5-Star Luxury & #1 Gym on the List</strong>
+            <span>✨</span> <strong>5-Star Luxury, #1 Gym & 3 Full Bathrooms</strong>
           </div>
         </div>
 
@@ -1310,10 +1654,22 @@
             <span class="price-amount">$4,222</span>
             <span class="price-sub">7 nights · ~$603/night</span>
           </div>
-          <div class="dates-badge">Fri 11/20 or Sun 11/22</div>
+          <div class="strip-badges">
+            <span class="room-pill luxury">⭐️ 2 Bed / 3 Bath · Sleeps 8</span>
+            <div class="dates-badge">Fri 11/20 or Sun 11/22</div>
+          </div>
         </div>
 
         <div class="card-body">
+          <!-- Room Info -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🛏️</span> Villa & Room Configuration</span>
+              <span class="score-badge score-top">2 Bed / 3 Bath · Sleeps 8 (3 Full Baths!)</span>
+            </div>
+            <p class="section-desc">Palatial ~1,670 sq ft 5-star residence with <span class="highlight-bold">3 full marble bathrooms</span>. King master suite with 5-fixture bath and deep oval soaking tub; 2nd bedroom with two Queen beds (or King) + en-suite full bath; plus a third full bathroom in common hallway. Gourmet granite kitchen, fireplace, washer/dryer, and 2 private furnished terraces.</p>
+          </div>
+
           <!-- Boys Action -->
           <div class="section-block">
             <div class="section-header">
@@ -1354,8 +1710,8 @@
         <div class="card-footer">
           <div class="links-group">
             <a href="https://www.tripadvisor.com/Search?q=Four+Seasons+Residence+Club+Aviara" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
-            <a href="https://www.redweek.com/resort/P2792" target="_blank" rel="noopener" class="ref-link">RedWeek R1543394 (Fri) ↗</a>
-            <a href="https://www.redweek.com/resort/P2792" target="_blank" rel="noopener" class="ref-link">RedWeek R1486668 (Sun) ↗</a>
+            <a href="https://www.redweek.com/posting/R1543394" target="_blank" rel="noopener" class="ref-link">RedWeek R1543394 (Fri) ↗</a>
+            <a href="https://www.redweek.com/posting/R1486668" target="_blank" rel="noopener" class="ref-link">RedWeek R1486668 (Sun) ↗</a>
           </div>
           <span class="ref-code">Refs: R1543394 / R1486668</span>
         </div>
@@ -1369,6 +1725,7 @@
         <thead>
           <tr>
             <th>Resort</th>
+            <th>Room & Unit</th>
             <th>Price & Dates</th>
             <th>Boys' Action</th>
             <th>Sinem's Gym</th>
@@ -1382,6 +1739,7 @@
               <span class="table-resort-name">Wyndham Oceanside</span>
               <span class="table-resort-loc">Oceanside · ★ 4.0</span>
             </td>
+            <td><strong>2BR / 2BA</strong><br><span style="font-size:11px;color:#64748b;">Sleeps 6 · Balcony</span></td>
             <td><strong>$1,745</strong> (6n)<br><span style="font-size:11px;color:#64748b;">Sat-Fri</span></td>
             <td>Good (compact)<br>Ping pong, game rm</td>
             <td><span class="score-badge score-caution">6/10</span> Hotel basic, sauna</td>
@@ -1393,6 +1751,7 @@
               <span class="table-resort-name">Westin Mission Hills</span>
               <span class="table-resort-loc">Rancho Mirage · ★ 4.2</span>
             </td>
+            <td><strong>2BR / 2BA</strong><br><span style="font-size:11px;color:#64748b;">Sleeps 8 · Lockoff</span></td>
             <td><strong>$1,742</strong> (Fri)<br><strong>$2,505</strong> (Sun)</td>
             <td><span class="score-badge score-top">10/10</span> 155ft slide, bowling, arcade, courts</td>
             <td><span class="score-badge score-top">9/10</span> Pelotons, TRX, racks, steam</td>
@@ -1404,6 +1763,7 @@
               <span class="table-resort-name">Westin Desert Willow</span>
               <span class="table-resort-loc">Palm Desert · ★ 4.5</span>
             </td>
+            <td><strong>2BR / 2BA</strong><br><span style="font-size:11px;color:#64748b;">Sleeps 8 · 1,400+ sf</span></td>
             <td><strong>$2,741</strong> (7n)<br><span style="font-size:11px;color:#64748b;">Sat-Sat</span></td>
             <td><span class="score-badge score-top">9.5/10</span> 159ft slide, arcade, courts</td>
             <td><span class="score-badge score-top">9/10</span> 1,408 sq ft 24/7, sauna</td>
@@ -1415,6 +1775,7 @@
               <span class="table-resort-name">Marriott Shadow Ridge II</span>
               <span class="table-resort-loc">Palm Desert · ★ 4.0</span>
             </td>
+            <td><strong>2BR / 2BA</strong><br><span style="font-size:11px;color:#64748b;">Sleeps 8 · 1,250 sf</span></td>
             <td><strong>$3,069</strong> (7n)<br><span style="font-size:11px;color:#64748b;">Sun-Sun</span></td>
             <td><span class="score-badge score-top">9.5/10</span> Chuckwalla slide, mini-golf</td>
             <td><span class="score-badge score-good">8.5/10</span> Mirage Center, lap pool</td>
@@ -1426,6 +1787,7 @@
               <span class="table-resort-name">Marriott Newport Coast</span>
               <span class="table-resort-loc">Newport Coast · ★ 4.3</span>
             </td>
+            <td><strong>2BR / 2BA</strong><br><span style="font-size:11px;color:#64748b;">Sleeps 8 · 1,248 sf</span></td>
             <td><strong>$3,077</strong> (Fri)<br><strong>$3,405</strong> (Sat)</td>
             <td><span class="score-badge score-good">9/10</span> Theater, arcade, courts (no slide)</td>
             <td><span class="score-badge score-good">8.5/10</span> Modern, ocean cardio, sauna</td>
@@ -1437,6 +1799,7 @@
               <span class="table-resort-name">Marriott Desert Springs</span>
               <span class="table-resort-loc">Palm Desert · ★ 4.2</span>
             </td>
+            <td><strong>2BR / 2BA</strong><br><span style="font-size:11px;color:#64748b;">Sleeps 8 · 1,600+ sf</span></td>
             <td><strong>$3,306</strong> (7n)<br><span style="font-size:11px;color:#64748b;">Sat-Sat</span></td>
             <td><span class="score-badge score-good">9/10</span> 7 pools, JW grounds, flamingos</td>
             <td><span class="score-badge score-good">8.5/10</span> 24h gym, stretch classes</td>
@@ -1448,6 +1811,7 @@
               <span class="table-resort-name">Wyndham Dolphin's Cove</span>
               <span class="table-resort-loc">Anaheim · ★ 3.7</span>
             </td>
+            <td><strong style="color:#b91c1c;">2BR / 1BA</strong><br><span style="font-size:11px;color:#b91c1c;">Only 1 Bath! Sleeps 6</span></td>
             <td><strong>$1,742</strong> (7n)<br><span style="font-size:11px;color:#64748b;">Sat-Sat</span></td>
             <td><span class="score-badge score-caution">6.5/10</span> Small game rm, 1 bath</td>
             <td><span class="score-badge score-caution">5/10</span> Very basic cardio rm</td>
@@ -1459,6 +1823,7 @@
               <span class="table-resort-name">Four Seasons Aviara</span>
               <span class="table-resort-loc">Carlsbad · ★ 4.5</span>
             </td>
+            <td><strong style="color:#6b21a8;">2BR / 3BA</strong><br><span style="font-size:11px;color:#6b21a8;">3 Baths! · 1,670 sf</span></td>
             <td><strong>$4,222</strong> (7n)<br><span style="font-size:11px;color:#64748b;">Fri or Sun</span></td>
             <td><span class="score-badge score-good">8.5/10</span> 5-star game room, courts</td>
             <td><span class="score-badge score-top">10/10</span> Pelotons, 2 gyms, spa</td>
@@ -1472,7 +1837,192 @@
   </main>
 
   <script>
-    // Elements
+    // Resort geographic coordinates & metadata for Leaflet map
+    const resortLocations = [
+      {
+        id: "wyndham-oceanside",
+        name: "Club Wyndham Oceanside Pier",
+        lat: 33.1958,
+        lng: -117.3820,
+        price: "$1,745",
+        dates: "Sat 11/21 – Fri 11/27",
+        unit: "2 Bed / 2 Bath · Sleeps 6",
+        region: "coastal",
+        symbol: "🌊",
+        tag: "Steps to Oceanside Pier & Strand"
+      },
+      {
+        id: "westin-mission-hills",
+        name: "Westin Mission Hills Villas",
+        lat: 33.8055,
+        lng: -116.4278,
+        price: "$1,742",
+        dates: "Fri 11/20 or Sun 11/22",
+        unit: "2 Bed / 2 Bath · Sleeps 8",
+        region: "desert",
+        symbol: "☀️",
+        tag: "155ft Slide, Bowling, Arcade & Pelotons"
+      },
+      {
+        id: "westin-desert-willow",
+        name: "Westin Desert Willow Villas",
+        lat: 33.7547,
+        lng: -116.3683,
+        price: "$2,741",
+        dates: "Sat 11/21 – Sat 11/28",
+        unit: "2 Bed / 2 Bath · Sleeps 8",
+        region: "desert",
+        symbol: "☀️",
+        tag: "159ft Slide, 4 Pools & 4.5★ TripAdvisor"
+      },
+      {
+        id: "marriott-shadow-ridge",
+        name: "Marriott's Shadow Ridge II",
+        lat: 33.7828,
+        lng: -116.3980,
+        price: "$3,069",
+        dates: "Sun 11/22 – Sun 11/29",
+        unit: "2 Bed / 2 Bath · Sleeps 8",
+        region: "desert",
+        symbol: "☀️",
+        tag: "Chuckwalla Slide, Mini-Golf & Mirage Gym"
+      },
+      {
+        id: "marriott-newport-coast",
+        name: "Marriott's Newport Coast Villas",
+        lat: 33.5855,
+        lng: -117.8398,
+        price: "$3,077",
+        dates: "Fri 11/20 or Sat 11/21",
+        unit: "2 Bed / 2 Bath · Sleeps 8",
+        region: "coastal",
+        symbol: "🌊",
+        tag: "Blufftop Coastal Luxury & Ocean-view Gym"
+      },
+      {
+        id: "marriott-desert-springs",
+        name: "Marriott's Desert Springs Villas",
+        lat: 33.7483,
+        lng: -116.3755,
+        price: "$3,306",
+        dates: "Sat 11/21 – Sat 11/28",
+        unit: "2 Bed / 2 Bath · Sleeps 8",
+        region: "desert",
+        symbol: "☀️",
+        tag: "400-acre JW Grounds, Flamingos & 7 Pools"
+      },
+      {
+        id: "wyndham-dolphins-cove",
+        name: "Club Wyndham Dolphin's Cove",
+        lat: 33.7950,
+        lng: -117.9175,
+        price: "$1,742",
+        dates: "Sat 11/21 – Sat 11/28",
+        unit: "2 Bed / 1 Bath · Sleeps 6",
+        region: "anaheim",
+        symbol: "🏰",
+        tag: "1 mile to Disneyland (1 Bathroom)"
+      },
+      {
+        id: "four-seasons-aviara",
+        name: "Four Seasons Aviara",
+        lat: 33.0975,
+        lng: -117.2917,
+        price: "$4,222",
+        dates: "Fri 11/20 or Sun 11/22",
+        unit: "2 Bed / 3 Bath · Sleeps 8",
+        region: "coastal",
+        symbol: "✨",
+        tag: "5-Star Luxury, 3 Bathrooms & #1 Gym"
+      }
+    ];
+
+    // Scroll helper for map popups
+    function scrollToResort(id) {
+      const card = document.getElementById(id);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        card.classList.remove('card-highlight');
+        void card.offsetWidth; // trigger reflow
+        card.classList.add('card-highlight');
+      }
+    }
+
+    // Initialize Map with clean light CartoDB Positron tiles
+    let map = null;
+    let resortMarkers = [];
+    let markersGroup = null;
+
+    function initMap() {
+      const mapEl = document.getElementById('resort-map');
+      if (!mapEl) return;
+
+      map = L.map('resort-map', {
+        scrollWheelZoom: false,
+        tap: true
+      }).setView([33.5, -117.0], 8);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 18,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+      }).addTo(map);
+
+      markersGroup = L.featureGroup().addTo(map);
+
+      resortLocations.forEach(loc => {
+        const pinIcon = L.divIcon({
+          className: 'custom-map-icon',
+          html: `<div class="map-pin-pill ${loc.region}">${loc.symbol} ${loc.price}</div>`,
+          iconSize: [88, 26],
+          iconAnchor: [44, 13]
+        });
+
+        const marker = L.marker([loc.lat, loc.lng], { icon: pinIcon });
+        marker.resortId = loc.id;
+        marker.region = loc.region;
+
+        const popupContent = `
+          <div class="map-popup-card">
+            <div class="map-popup-title">${loc.name}</div>
+            <div class="map-popup-price">${loc.price} · <span style="font-weight:500; font-size:11px; color:#64748b;">${loc.dates}</span></div>
+            <div class="map-popup-tag"><strong>${loc.unit}</strong></div>
+            <div class="map-popup-tag">${loc.tag}</div>
+            <a href="#${loc.id}" class="map-popup-jump" onclick="scrollToResort('${loc.id}'); return false;">Jump to Resort Details ↓</a>
+          </div>
+        `;
+        marker.bindPopup(popupContent);
+        markersGroup.addLayer(marker);
+        resortMarkers.push(marker);
+      });
+
+      if (resortMarkers.length > 0) {
+        map.fitBounds(markersGroup.getBounds().pad(0.12));
+      }
+    }
+
+    // Toggle Map visibility
+    const toggleMapBtn = document.getElementById('toggle-map-btn');
+    const mapEl = document.getElementById('resort-map');
+    const mapLegendEl = document.getElementById('map-legend');
+    let isMapVisible = true;
+
+    toggleMapBtn.addEventListener('click', () => {
+      isMapVisible = !isMapVisible;
+      if (isMapVisible) {
+        mapEl.style.display = 'block';
+        mapLegendEl.style.display = 'flex';
+        toggleMapBtn.textContent = 'Hide Map';
+        toggleMapBtn.setAttribute('aria-expanded', 'true');
+        setTimeout(() => map && map.invalidateSize(), 50);
+      } else {
+        mapEl.style.display = 'none';
+        mapLegendEl.style.display = 'none';
+        toggleMapBtn.textContent = 'Show Map';
+        toggleMapBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Elements for filtering & sorting
     const searchInput = document.getElementById('search-input');
     const clearSearchBtn = document.getElementById('clear-search');
     const chipButtons = document.querySelectorAll('.chip');
@@ -1537,13 +2087,14 @@
 
     function filterAndSort() {
       let visibleCount = 0;
+      let activeMarkers = [];
 
       // Filter
       cardElements.forEach(card => {
         const region = card.dataset.region;
         const tags = (card.dataset.tags + ' ' + card.innerText).toLowerCase();
-        const boysScore = parseFloat(card.dataset.boys);
         const gymScore = parseFloat(card.dataset.gym);
+        const sleeps = parseInt(card.dataset.sleeps);
 
         let matchesFilter = false;
         if (activeFilter === 'all') {
@@ -1558,6 +2109,8 @@
           matchesFilter = true;
         } else if (activeFilter === 'topgym' && gymScore >= 9.0) {
           matchesFilter = true;
+        } else if (activeFilter === 'sleeps8' && sleeps >= 8) {
+          matchesFilter = true;
         }
 
         const matchesSearch = !searchQuery || tags.includes(searchQuery);
@@ -1569,6 +2122,24 @@
           card.style.display = 'none';
         }
       });
+
+      // Synchronize Map Pins with filter
+      if (map && markersGroup) {
+        resortMarkers.forEach(marker => {
+          const card = document.getElementById(marker.resortId);
+          if (card && card.style.display !== 'none') {
+            if (!markersGroup.hasLayer(marker)) markersGroup.addLayer(marker);
+            activeMarkers.push(marker);
+          } else {
+            if (markersGroup.hasLayer(marker)) markersGroup.removeLayer(marker);
+          }
+        });
+
+        if (activeMarkers.length > 0) {
+          const group = L.featureGroup(activeMarkers);
+          map.fitBounds(group.getBounds().pad(0.14));
+        }
+      }
 
       // Sort
       const sortMode = sortSelect.value;
@@ -1593,6 +2164,11 @@
       resultsCount.textContent = `Showing ${visibleCount} of ${cardElements.length} resorts`;
       emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
     }
+
+    // Run map init after page load
+    window.addEventListener('DOMContentLoaded', () => {
+      initMap();
+    });
   </script>
 </body>
 </html>
