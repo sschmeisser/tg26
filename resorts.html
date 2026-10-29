@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Thanksgiving Week Resort Comparison</title>
+  <style>
+    :root {
+      --bg-page: #f6f8fa;
+      --card-bg: #ffffff;
+      --border-color: #e5e9f0;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --text-sub: #4b5563;
+      --accent-blue: #0284c7;
+      --accent-blue-light: #e0f2fe;
+      --accent-amber: #d97706;
+      --accent-amber-light: #fef3c7;
+      --score-green-bg: #dcfce7;
+      --score-green-text: #166534;
+      --score-green-border: #bbf7d0;
+      --score-blue-bg: #e0f2fe;
+      --score-blue-text: #075985;
+      --score-blue-border: #bae6fd;
+      --score-amber-bg: #fef3c7;
+      --score-amber-text: #92400e;
+      --score-amber-border: #fde68a;
+      --score-red-bg: #fee2e2;
+      --score-red-text: #991b1b;
+      --score-red-border: #fecaca;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+      --shadow-md: 0 4px 12px -2px rgba(0,0,0,0.06), 0 2px 6px -1px rgba(0,0,0,0.04);
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.5;
+      padding: 0 0 48px 0;
+      font-size: 15px;
+    }
+
+    /* Top Header (Non-sticky: scrolls naturally with page) */
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 16px 12px 16px;
+      position: static;
+    }
+
+    .header-content {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .badge-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .trip-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-blue-light);
+      color: var(--accent-blue);
+    }
+
+    .trip-dates {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #111827;
+      letter-spacing: -0.3px;
+      margin-bottom: 2px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    /* Search & Filter Controls */
+    .controls-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .search-input-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input-box svg {
+      position: absolute;
+      left: 12px;
+      width: 16px;
+      height: 16px;
+      color: #9ca3af;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 38px;
+      padding: 0 32px 0 36px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 14px;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      background: #ffffff;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 16px;
+      color: #9ca3af;
+      cursor: pointer;
+      display: none;
+      padding: 2px;
+    }
+
+    /* Scrollable Filter Chips */
+    .filter-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 2px 0;
+    }
+
+    .filter-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .chip.active {
+      background: var(--text-main);
+      color: #ffffff;
+      border-color: var(--text-main);
+    }
+
+    /* Sort Row & View Switcher */
+    .sub-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 2px;
+      font-size: 12px;
+    }
+
+    .sort-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sort-group label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .sort-select {
+      background: transparent;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .view-toggle {
+      display: flex;
+      background: #e5e7eb;
+      border-radius: 8px;
+      padding: 2px;
+    }
+
+    .view-btn {
+      padding: 4px 8px;
+      border: none;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .view-btn.active {
+      background: #ffffff;
+      color: var(--text-main);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 640px;
+      margin: 16px auto 0 auto;
+      padding: 0 14px;
+    }
+
+    .count-indicator {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Resort Card */
+    .resort-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      margin-bottom: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .resort-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Card Header Area */
+    .card-top {
+      padding: 16px 16px 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .card-meta-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .location-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      background: var(--accent-blue-light);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .location-pill.desert {
+      color: #b45309;
+      background: var(--accent-amber-light);
+    }
+
+    .location-pill.anaheim {
+      color: #7c3aed;
+      background: #f5f3ff;
+    }
+
+    .ta-rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #059669;
+      background: #ecfdf5;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid #d1fae5;
+    }
+
+    .resort-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+
+    .vibe-callout {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4b5563;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Pricing & Dates Strip */
+    .price-strip {
+      background: #f8fafc;
+      border-top: 1px solid #f1f5f9;
+      border-bottom: 1px solid #f1f5f9;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .price-main {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .price-amount {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.4px;
+    }
+
+    .price-sub {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .dates-badge {
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      padding: 5px 10px;
+      border-radius: 8px;
+      text-align: right;
+    }
+
+    /* Comparison Sections Inside Card */
+    .card-body {
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .section-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-title svg, .section-title span.emoji {
+      font-size: 14px;
+    }
+
+    /* Score Badges */
+    .score-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .score-top {
+      background: var(--score-green-bg);
+      color: var(--score-green-text);
+      border: 1px solid var(--score-green-border);
+    }
+
+    .score-good {
+      background: var(--score-blue-bg);
+      color: var(--score-blue-text);
+      border: 1px solid var(--score-blue-border);
+    }
+
+    .score-fair {
+      background: var(--score-amber-bg);
+      color: var(--score-amber-text);
+      border: 1px solid var(--score-amber-border);
+    }
+
+    .score-caution {
+      background: var(--score-red-bg);
+      color: var(--score-red-text);
+      border: 1px solid var(--score-red-border);
+    }
+
+    .section-desc {
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: #334155;
+    }
+
+    .highlight-bold {
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    /* Card Footer / Links */
+    .card-footer {
+      padding: 10px 16px 14px 16px;
+      background: #fafafa;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .links-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ref-link {
+      font-size: 11px;
+      font-weight: 600;
+      text-decoration: none;
+      color: #2563eb;
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: background 0.15s;
+    }
+
+    .ref-link:hover {
+      background: #dbeafe;
+    }
+
+    .ref-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Comparison Table View (Hidden by default on mobile cards, switchable) */
+    #matrix-view {
+      display: none;
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      min-width: 600px;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #475569;
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 700;
+      border-bottom: 2px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #fafbfc;
+    }
+
+    .table-resort-name {
+      font-weight: 700;
+      color: #0f172a;
+      display: block;
+      font-size: 13px;
+    }
+
+    .table-resort-loc {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    /* Quick Skim Bar */
+    .quick-recap {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+
+    .quick-recap h3 {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #475569;
+      margin-bottom: 8px;
+    }
+
+    .recap-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .recap-item {
+      background: #f8fafc;
+      border: 1px solid #edf2f7;
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+
+    .recap-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    .recap-val {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-top: 2px;
+    }
+
+    .recap-sub {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+    }
+
+    .empty-state p {
+      color: var(--text-muted);
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    /* Small Screen Utilities */
+    @media (max-width: 480px) {
+      body {
+        font-size: 14.5px;
+      }
+      h1 {
+        font-size: 18px;
+      }
+      .recap-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Mobile Header -->
+  <header>
+    <div class="header-content">
+      <div class="badge-bar">
+        <span class="trip-tag">Thanksgiving 2026</span>
+        <span class="trip-dates">Nov 20 – Nov 29</span>
+      </div>
+      <h1>SoCal & Desert Resorts</h1>
+      <p class="subtitle">Side-by-side family comparison for boys' action, gym & tanning</p>
+
+      <div class="controls-wrapper">
+        <!-- Search Input -->
+        <div class="search-input-box">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input type="text" id="search-input" class="search-input" placeholder="Search waterslide, peloton, pickleball..." aria-label="Search resorts">
+          <button id="clear-search" class="clear-btn" aria-label="Clear search">&times;</button>
+        </div>
+
+        <!-- Filter Chips (Scrollable) -->
+        <div class="filter-scroll">
+          <button class="chip active" data-filter="all">All (8)</button>
+          <button class="chip" data-filter="desert">☀️ Desert Sun (4)</button>
+          <button class="chip" data-filter="coastal">🌊 Coastal (3)</button>
+          <button class="chip" data-filter="anaheim">🏰 Anaheim (1)</button>
+          <button class="chip" data-filter="waterslide">🛝 Big Slides</button>
+          <button class="chip" data-filter="topgym">🏋️ Top Gym (9+)</button>
+        </div>
+
+        <!-- Sort and View Switcher -->
+        <div class="sub-bar">
+          <div class="sort-group">
+            <label for="sort-select">Sort:</label>
+            <select id="sort-select" class="sort-select">
+              <option value="default">Default Order</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="gym-desc">Sinem's Gym (Highest)</option>
+              <option value="boys-desc">Boys' Action (Highest)</option>
+              <option value="rating-desc">TripAdvisor Rating</option>
+            </select>
+          </div>
+
+          <div class="view-toggle">
+            <button id="btn-cards" class="view-btn active" title="Card View">Cards</button>
+            <button id="btn-matrix" class="view-btn" title="Table View">Matrix</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main>
+
+    <!-- Quick Skim Recaps -->
+    <div class="quick-recap">
+      <h3>⚡ Quick Category Winners</h3>
+      <div class="recap-grid">
+        <div class="recap-item">
+          <div class="recap-label">☀️ Best Desert Sun & Value</div>
+          <div class="recap-val">Westin Mission Hills</div>
+          <div class="recap-sub">$1,742 (Fri-Fri) · 155ft slide · 9/10 Gym</div>
+        </div>
+        <div class="recap-item">
+          <div class="recap-label">🏋️ Best Gym & Pure Luxury</div>
+          <div class="recap-val">Four Seasons Aviara</div>
+          <div class="recap-sub">10/10 Gym · Pelotons · 83°F Pool</div>
+        </div>
+        <div class="recap-item">
+          <div class="recap-label">🏆 Top Overall Rating</div>
+          <div class="recap-val">Westin Desert Willow</div>
+          <div class="recap-sub">4.5★ TA · 159ft slide · Mountain sun</div>
+        </div>
+        <div class="recap-item">
+          <div class="recap-label">🌊 Best Walkable Ocean Vibe</div>
+          <div class="recap-val">Wyndham Oceanside</div>
+          <div class="recap-sub">10/10 Walkability · Steps to Pier</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="count-indicator">
+      <span id="results-count">Showing 8 of 8 resorts</span>
+      <span style="font-size: 11px; color: #94a3b8;">Tap TripAdvisor or RedWeek to inspect</span>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="empty-state">
+      <strong>No matching resorts found</strong>
+      <p>Try searching for another keyword or reset the filters.</p>
+    </div>
+
+    <!-- Cards Container -->
+    <div id="cards-container">
+
+      <!-- 1. Club Wyndham Oceanside Pier -->
+      <article class="resort-card" 
+        data-id="wyndham-oceanside"
+        data-region="coastal"
+        data-price="1745"
+        data-rating="4.0"
+        data-boys="7.0"
+        data-gym="6.0"
+        data-tanning="5.0"
+        data-tags="compact game room ping pong sauna pier beach strand walkability coastal legoland">
+        
+        <div class="card-top">
+          <div class="card-meta-line">
+            <span class="location-pill">📍 Oceanside · Coastal</span>
+            <span class="ta-rating">★ 4.0/5 <span style="font-size:10px; font-weight:500; color:#6b7280;">(~743)</span></span>
+          </div>
+          <h2 class="resort-title">Club Wyndham Oceanside Pier</h2>
+          <div class="vibe-callout">
+            <span>🚶</span> <strong>10/10 Beach Walkability & Pier Access</strong>
+          </div>
+        </div>
+
+        <div class="price-strip">
+          <div class="price-main">
+            <span class="price-amount">$1,745</span>
+            <span class="price-sub">6 nights · ~$291/night</span>
+          </div>
+          <div class="dates-badge">Sat 11/21 – Fri 11/27</div>
+        </div>
+
+        <div class="card-body">
+          <!-- Boys Action -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏓</span> Boys' On-Site Action</span>
+              <span class="score-badge score-fair">Good (Compact)</span>
+            </div>
+            <p class="section-desc">Indoor/outdoor ping pong tables, game room, and small outdoor pool. <span class="highlight-bold">No waterslide or sports courts.</span></p>
+          </div>
+
+          <!-- Gym Quality -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏋️‍♀️</span> Sinem's Gym Quality</span>
+              <span class="score-badge score-caution">6 / 10 Basic</span>
+            </div>
+            <p class="section-desc">Hotel-basic fitness room with a few treadmills, stationary bikes, light dumbbells, plus an on-site sauna.</p>
+          </div>
+
+          <!-- Tanning & Pool -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">☀️</span> November Tanning & Pool</span>
+              <span class="score-badge score-caution">Risky (~65°F)</span>
+            </div>
+            <p class="section-desc">Risky for tanning: Highs ~65–68°F with direct ocean breeze. Elevated 2nd-floor sundeck is nice, but wind makes poolside lounging chilly.</p>
+          </div>
+
+          <!-- Family Fun -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🌴</span> Surrounding Family Fun</span>
+              <span class="score-badge score-top">10/10 Walkable</span>
+            </div>
+            <p class="section-desc">Steps to the Pier and beach strand (boardwalk cruising, harbor paddleboarding). LEGOLAND (15 min), San Diego (40 min).</p>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="links-group">
+            <a href="https://www.tripadvisor.com/Search?q=Club+Wyndham+Oceanside+Pier" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
+            <a href="https://www.redweek.com/resort/P4865" target="_blank" rel="noopener" class="ref-link">RedWeek R1540703 ↗</a>
+          </div>
+          <span class="ref-code">Ref: R1540703</span>
+        </div>
+      </article>
+
+      <!-- 2. Westin Mission Hills Villas -->
+      <article class="resort-card" 
+        data-id="westin-mission-hills"
+        data-region="desert"
+        data-price="1742"
+        data-rating="4.2"
+        data-boys="10.0"
+        data-gym="9.0"
+        data-tanning="10.0"
+        data-tags="waterslide 155ft bowling arcade pinz peloton trx desert tanning rancho mirage courts pickleball basketball">
+        
+        <div class="card-top">
+          <div class="card-meta-line">
+            <span class="location-pill desert">☀️ Rancho Mirage · Desert</span>
+            <span class="ta-rating">★ 4.2/5 <span style="font-size:10px; font-weight:500; color:#6b7280;">(~1,451)</span></span>
+          </div>
+          <h2 class="resort-title">Westin Mission Hills Villas</h2>
+          <div class="vibe-callout">
+            <span>⭐</span> <strong>Best All-Around Value & Mega-Action Compound</strong>
+          </div>
+        </div>
+
+        <div class="price-strip">
+          <div class="price-main">
+            <span class="price-amount">$1,742 <span style="font-size: 14px; font-weight: 500; color: #64748b;">(Fri-Fri)</span></span>
+            <span class="price-sub">or $2,505 (Sun-Sun) · 7 nights</span>
+          </div>
+          <div class="dates-badge">Fri 11/20 or Sun 11/22</div>
+        </div>
+
+        <div class="card-body">
+          <!-- Boys Action -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏓</span> Boys' On-Site Action</span>
+              <span class="score-badge score-top">10 / 10 Compound</span>
+            </div>
+            <p class="section-desc"><span class="highlight-bold">155-ft waterslide</span>, ping pong, billiards, basketball/pickleball/volleyball, plus <span class="highlight-bold">Pinz & Pints</span> (4-lane bowling alley + arcade) at the adjacent Westin hotel.</p>
+          </div>
+
+          <!-- Gym Quality -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏋️‍♀️</span> Sinem's Gym Quality</span>
+              <span class="score-badge score-top">9 / 10 WestinWORKOUT</span>
+            </div>
+            <p class="section-desc">Full-size fitness studio with Peloton bikes, TRX training, full free-weight racks, squat/cable machines, and dedicated sauna/steam rooms.</p>
+          </div>
+
+          <!-- Tanning & Pool -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">☀️</span> November Tanning & Pool</span>
+              <span class="score-badge score-top">10 / 10 Tanning Mecca</span>
+            </div>
+            <p class="section-desc">Sunny with zero ocean wind, mid-to-high 70s°F. Mountain enclosure makes 72°F feel like 80°F in direct sun. Huge cabanas and quiet East Pool deck.</p>
+          </div>
+
+          <!-- Family Fun -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🌴</span> Surrounding Family Fun</span>
+              <span class="score-badge score-good">Coachella Valley</span>
+            </div>
+            <p class="section-desc">Palm Springs Aerial Tramway (20 min), The Living Desert Zoo & giraffe feeding (15 min), Joshua Tree (45 min), Palm Springs Surf Club wave pool (15 min).</p>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="links-group">
+            <a href="https://www.tripadvisor.com/Search?q=Westin+Mission+Hills+Resort+Villas+Rancho+Mirage" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
+            <a href="https://www.redweek.com/resort/P2454" target="_blank" rel="noopener" class="ref-link">RedWeek R1473124 (Fri) ↗</a>
+            <a href="https://www.redweek.com/resort/P2454" target="_blank" rel="noopener" class="ref-link">RedWeek R1457998 (Sun) ↗</a>
+          </div>
+          <span class="ref-code">Refs: R1473124 / R1457998</span>
+        </div>
+      </article>
+
+      <!-- 3. Westin Desert Willow Villas -->
+      <article class="resort-card" 
+        data-id="westin-desert-willow"
+        data-region="desert"
+        data-price="2741"
+        data-rating="4.5"
+        data-boys="9.5"
+        data-gym="9.0"
+        data-tanning="10.0"
+        data-tags="waterslide 159ft game room air hockey foosball westinworkout palm desert mountain sun luxury">
+        
+        <div class="card-top">
+          <div class="card-meta-line">
+            <span class="location-pill desert">☀️ Palm Desert · Desert</span>
+            <span class="ta-rating">★ 4.5/5 <span style="font-size:10px; font-weight:500; color:#6b7280;">(~1,500+)</span></span>
+          </div>
+          <h2 class="resort-title">Westin Desert Willow Villas</h2>
+          <div class="vibe-callout">
+            <span>🏆</span> <strong>Top TripAdvisor Rating & 4 Mountain-View Pool Decks</strong>
+          </div>
+        </div>
+
+        <div class="price-strip">
+          <div class="price-main">
+            <span class="price-amount">$2,741</span>
+            <span class="price-sub">7 nights · ~$391/night</span>
+          </div>
+          <div class="dates-badge">Sat 11/21 – Sat 11/28</div>
+        </div>
+
+        <div class="card-body">
+          <!-- Boys Action -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏓</span> Boys' On-Site Action</span>
+              <span class="score-badge score-top">9.5 / 10</span>
+            </div>
+            <p class="section-desc"><span class="highlight-bold">159-ft winding waterslide</span>, sport pool with water basketball/volleyball, game room (ping pong, air hockey, foosball, pool table, arcade), plus basketball & pickleball courts.</p>
+          </div>
+
+          <!-- Gym Quality -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏋️‍♀️</span> Sinem's Gym Quality</span>
+              <span class="score-badge score-top">9 / 10 WestinWORKOUT</span>
+            </div>
+            <p class="section-desc">1,408 sq ft 24/7 facility with top-tier strength and cardio gear, plus steam room and sauna built directly into locker rooms.</p>
+          </div>
+
+          <!-- Tanning & Pool -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">☀️</span> November Tanning & Pool</span>
+              <span class="score-badge score-top">10 / 10 Tanning</span>
+            </div>
+            <p class="section-desc">Four huge heated pool decks facing the Santa Rosa Mountains. Zero wind, intense desert sun, and great poolside bar food/drink service.</p>
+          </div>
+
+          <!-- Family Fun -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🌴</span> Surrounding Family Fun</span>
+              <span class="score-badge score-good">Prime Palm Desert</span>
+            </div>
+            <p class="section-desc">10 min to El Paseo shopping & dining, 10 min to Living Desert Zoo, 15 min to Red Jeep San Andreas Fault tours.</p>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="links-group">
+            <a href="https://www.tripadvisor.com/Search?q=Westin+Desert+Willow+Villas+Palm+Desert" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
+            <a href="https://www.redweek.com/resort/P5594" target="_blank" rel="noopener" class="ref-link">RedWeek R1474498 ↗</a>
+          </div>
+          <span class="ref-code">Ref: R1474498</span>
+        </div>
+      </article>
+
+      <!-- 4. Marriott's Shadow Ridge II -->
+      <article class="resort-card" 
+        data-id="marriott-shadow-ridge"
+        data-region="desert"
+        data-price="3069"
+        data-rating="4.0"
+        data-boys="9.5"
+        data-gym="8.5"
+        data-tanning="10.0"
+        data-tags="waterslide chuckwalla water cannons mini golf pickleball lap pool mirage fitness palm desert">
+        
+        <div class="card-top">
+          <div class="card-meta-line">
+            <span class="location-pill desert">☀️ Palm Desert · Desert</span>
+            <span class="ta-rating">★ 4.0/5 <span style="font-size:10px; font-weight:500; color:#6b7280;">(~1,483)</span></span>
+          </div>
+          <h2 class="resort-title">Marriott's Shadow Ridge II</h2>
+          <div class="vibe-callout">
+            <span>⛳</span> <strong>Chuckwalla Waterslide, Mini-Golf & Mirage Fitness</strong>
+          </div>
+        </div>
+
+        <div class="price-strip">
+          <div class="price-main">
+            <span class="price-amount">$3,069</span>
+            <span class="price-sub">7 nights · ~$438/night</span>
+          </div>
+          <div class="dates-badge">Sun 11/22 – Sun 11/29</div>
+        </div>
+
+        <div class="card-body">
+          <!-- Boys Action -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏓</span> Boys' On-Site Action</span>
+              <span class="score-badge score-top">9.5 / 10</span>
+            </div>
+            <p class="section-desc"><span class="highlight-bold">Chuckwalla pool waterslide</span> with water cannons, on-site 9-hole mini-golf course, ping pong, billiards, basketball, volleyball, pickleball, and cornhole.</p>
+          </div>
+
+          <!-- Gym Quality -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏋️‍♀️</span> Sinem's Gym Quality</span>
+              <span class="score-badge score-good">8.5 / 10 Mirage Center</span>
+            </div>
+            <p class="section-desc">Huge Mirage Fitness Center with full Life Fitness cardio & strength machines, free weights, daily fitness classes, and a dedicated lap pool.</p>
+          </div>
+
+          <!-- Tanning & Pool -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">☀️</span> November Tanning & Pool</span>
+              <span class="score-badge score-top">10 / 10 Tanning</span>
+            </div>
+            <p class="section-desc">Four separate pool complexes with massive sun decks. Reliable desert microclimate ensures warm, wind-sheltered tanning all week.</p>
+          </div>
+
+          <!-- Family Fun -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🌴</span> Surrounding Family Fun</span>
+              <span class="score-badge score-good">Coachella Valley Hub</span>
+            </div>
+            <p class="section-desc">Joshua Tree day trip, Palm Springs Aerial Tramway, Living Desert Zoo, BMW Performance Center race track in Thermal.</p>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="links-group">
+            <a href="https://www.tripadvisor.com/Search?q=Marriott+Shadow+Ridge+Palm+Desert" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
+            <a href="https://www.redweek.com/resort/P4876" target="_blank" rel="noopener" class="ref-link">RedWeek R1517764 ↗</a>
+          </div>
+          <span class="ref-code">Ref: R1517764</span>
+        </div>
+      </article>
+
+      <!-- 5. Marriott's Newport Coast Villas -->
+      <article class="resort-card" 
+        data-id="marriott-newport-coast"
+        data-region="coastal"
+        data-price="3077"
+        data-rating="4.3"
+        data-boys="9.0"
+        data-gym="8.5"
+        data-tanning="8.0"
+        data-tags="coastal luxury crystal cove ocean view theater arcade pickleball newport beach basketball">
+        
+        <div class="card-top">
+          <div class="card-meta-line">
+            <span class="location-pill">📍 Newport Coast · Coastal</span>
+            <span class="ta-rating">★ 4.3/5 <span style="font-size:10px; font-weight:500; color:#6b7280;">(~2,458)</span></span>
+          </div>
+          <h2 class="resort-title">Marriott's Newport Coast Villas</h2>
+          <div class="vibe-callout">
+            <span>🌊</span> <strong>High-Bluff Coastal Luxury & Massive Activity Campus</strong>
+          </div>
+        </div>
+
+        <div class="price-strip">
+          <div class="price-main">
+            <span class="price-amount">$3,077 <span style="font-size: 14px; font-weight: 500; color: #64748b;">(Fri-Fri)</span></span>
+            <span class="price-sub">or $3,405 (Sat-Sat) · 7 nights</span>
+          </div>
+          <div class="dates-badge">Fri 11/20 or Sat 11/21</div>
+        </div>
+
+        <div class="card-body">
+          <!-- Boys Action -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏓</span> Boys' On-Site Action</span>
+              <span class="score-badge score-top">9 / 10 Mega-Resort</span>
+            </div>
+            <p class="section-desc">Multiple outdoor ping pong tables, full basketball court, pickleball & tennis, sand volleyball, tetherball, giant chess, arcade, movie theater. <span class="highlight-bold">(No waterslide)</span>.</p>
+          </div>
+
+          <!-- Gym Quality -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏋️‍♀️</span> Sinem's Gym Quality</span>
+              <span class="score-badge score-good">8.5 / 10 Coastal Gym</span>
+            </div>
+            <p class="section-desc">Large, modern fitness center with full free weights, cable machines, ocean-view cardio equipment, plus steam room & sauna.</p>
+          </div>
+
+          <!-- Tanning & Pool -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">☀️</span> November Tanning & Pool</span>
+              <span class="score-badge score-good">8 / 10 Blufftop</span>
+            </div>
+            <p class="section-desc">Perched high on the bluffs above the marine layer. Glass windbreaks protect the heated pools, making it notably warmer than sitting on the beach sand.</p>
+          </div>
+
+          <!-- Family Fun -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🌴</span> Surrounding Family Fun</span>
+              <span class="score-badge score-top">Prime OC Coast</span>
+            </div>
+            <p class="section-desc">Crystal Cove State Park trails & tide pools right across PCH, Newport Back Bay paddleboarding, Balboa Island ferry, Huntington Beach (20 min).</p>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="links-group">
+            <a href="https://www.tripadvisor.com/Search?q=Marriott+Newport+Coast+Villas" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
+            <a href="https://www.redweek.com/resort/P1983" target="_blank" rel="noopener" class="ref-link">RedWeek R1539623 (Fri) ↗</a>
+            <a href="https://www.redweek.com/resort/P1983" target="_blank" rel="noopener" class="ref-link">RedWeek R1543281 (Sat) ↗</a>
+          </div>
+          <span class="ref-code">Refs: R1539623 / R1543281</span>
+        </div>
+      </article>
+
+      <!-- 6. Marriott's Desert Springs Villas -->
+      <article class="resort-card" 
+        data-id="marriott-desert-springs"
+        data-region="desert"
+        data-price="3306"
+        data-rating="4.2"
+        data-boys="9.0"
+        data-gym="8.5"
+        data-tanning="10.0"
+        data-tags="flamingos gondola jw marriott 7 pools desert big villas mini golf palm desert">
+        
+        <div class="card-top">
+          <div class="card-meta-line">
+            <span class="location-pill desert">☀️ Palm Desert · Desert</span>
+            <span class="ta-rating">★ 4.2/5 <span style="font-size:10px; font-weight:500; color:#6b7280;">(~1,412)</span></span>
+          </div>
+          <h2 class="resort-title">Marriott's Desert Springs Villas</h2>
+          <div class="vibe-callout">
+            <span>🦩</span> <strong>Access to JW Marriott Grounds, Flamingos & Gondolas</strong>
+          </div>
+        </div>
+
+        <div class="price-strip">
+          <div class="price-main">
+            <span class="price-amount">$3,306</span>
+            <span class="price-sub">7 nights · ~$472/night</span>
+          </div>
+          <div class="dates-badge">Sat 11/21 – Sat 11/28</div>
+        </div>
+
+        <div class="card-body">
+          <!-- Boys Action -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏓</span> Boys' On-Site Action</span>
+              <span class="score-badge score-top">9 / 10 (400 Acres)</span>
+            </div>
+            <p class="section-desc">Huge 400-acre estate with 7 pools, ping pong, billiards, basketball, pickleball/tennis, mini-golf, and access to JW Marriott grounds with live flamingos and boat rides. <span class="highlight-bold">(No big slide)</span>.</p>
+          </div>
+
+          <!-- Gym Quality -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏋️‍♀️</span> Sinem's Gym Quality</span>
+              <span class="score-badge score-good">8.5 / 10 (24h Gym)</span>
+            </div>
+            <p class="section-desc">24-hour fitness center with daily wellness and stretching classes, complete free weights, and cardio stations.</p>
+          </div>
+
+          <!-- Tanning & Pool -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">☀️</span> November Tanning & Pool</span>
+              <span class="score-badge score-top">10 / 10 (7 Pools)</span>
+            </div>
+            <p class="section-desc">7 distinct pool decks to choose from, zero wind, and very spacious villa floor plans (some of the largest in Palm Desert).</p>
+          </div>
+
+          <!-- Family Fun -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🌴</span> Surrounding Family Fun</span>
+              <span class="score-badge score-good">Heart of Palm Desert</span>
+            </div>
+            <p class="section-desc">Direct walking paths around JW Marriott lakes, 10 min drive to El Paseo shopping and The Living Desert Zoo.</p>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="links-group">
+            <a href="https://www.tripadvisor.com/Search?q=Marriott+Desert+Springs+Villas+Palm+Desert" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
+            <a href="https://www.redweek.com/resort/P1982" target="_blank" rel="noopener" class="ref-link">RedWeek R1530679 ↗</a>
+          </div>
+          <span class="ref-code">Ref: R1530679</span>
+        </div>
+      </article>
+
+      <!-- 7. Club Wyndham Dolphin's Cove -->
+      <article class="resort-card" 
+        data-id="wyndham-dolphins-cove"
+        data-region="anaheim"
+        data-price="1742"
+        data-rating="3.7"
+        data-boys="6.5"
+        data-gym="5.0"
+        data-tanning="6.0"
+        data-tags="disney disneyland anaheim toy story budget basic courtyard">
+        
+        <div class="card-top">
+          <div class="card-meta-line">
+            <span class="location-pill anaheim">🏰 Anaheim · Disney Base</span>
+            <span class="ta-rating" style="color: #b45309; background:#fffbeb; border-color:#fde68a;">★ 3.7/5 <span style="font-size:10px; font-weight:500; color:#6b7280;">(~543)</span></span>
+          </div>
+          <h2 class="resort-title">Club Wyndham Dolphin's Cove</h2>
+          <div class="vibe-callout">
+            <span>🎢</span> <strong>Disneyland Shuttle Proximity (1 Mile Away)</strong>
+          </div>
+        </div>
+
+        <div class="price-strip">
+          <div class="price-main">
+            <span class="price-amount">$1,742</span>
+            <span class="price-sub">7 nights · ~$248/night</span>
+          </div>
+          <div class="dates-badge">Sat 11/21 – Sat 11/28</div>
+        </div>
+
+        <div class="card-body">
+          <!-- Boys Action -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏓</span> Boys' On-Site Action</span>
+              <span class="score-badge score-caution">6.5 / 10 Small</span>
+            </div>
+            <p class="section-desc">Small game room, outdoor putting green, and courtyard pool. Feels like an older condo complex. <span class="highlight-bold">Note: Only 1 bathroom in unit.</span></p>
+          </div>
+
+          <!-- Gym Quality -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏋️‍♀️</span> Sinem's Gym Quality</span>
+              <span class="score-badge score-caution">5 / 10 Minimal</span>
+            </div>
+            <p class="section-desc">Very small, bare-bones fitness room with just a couple of cardio machines.</p>
+          </div>
+
+          <!-- Tanning & Pool -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">☀️</span> November Tanning & Pool</span>
+              <span class="score-badge score-caution">6 / 10 Courtyard</span>
+            </div>
+            <p class="section-desc">Basic courtyard pool surrounded by buildings. Adequate for cooling off after Disneyland, but underwhelming for a dedicated lounging vacation.</p>
+          </div>
+
+          <!-- Family Fun -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🌴</span> Surrounding Family Fun</span>
+              <span class="score-badge score-top">Disney Destination</span>
+            </div>
+            <p class="section-desc">Disneyland & California Adventure (walkable to Toy Story shuttle lot, &lt;1 mile away). Huntington Beach is ~25 min south.</p>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="links-group">
+            <a href="https://www.tripadvisor.com/Search?q=Club+Wyndham+Dolphin+Cove+Anaheim" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
+            <a href="https://www.redweek.com/resort/P2775" target="_blank" rel="noopener" class="ref-link">RedWeek R1536245 ↗</a>
+          </div>
+          <span class="ref-code">Ref: R1536245</span>
+        </div>
+      </article>
+
+      <!-- 8. Four Seasons Aviara -->
+      <article class="resort-card" 
+        data-id="four-seasons-aviara"
+        data-region="coastal"
+        data-price="4222"
+        data-rating="4.5"
+        data-boys="8.5"
+        data-gym="10.0"
+        data-tanning="8.5"
+        data-tags="luxury 5-star peloton heavy lifter carlsbad lagoon legoland driftwood spa 83F pool">
+        
+        <div class="card-top">
+          <div class="card-meta-line">
+            <span class="location-pill">📍 Carlsbad · Coastal Hillside</span>
+            <span class="ta-rating">★ 4.5/5 <span style="font-size:10px; font-weight:500; color:#6b7280;">(~1,100+)</span></span>
+          </div>
+          <h2 class="resort-title">Four Seasons Aviara</h2>
+          <div class="vibe-callout">
+            <span>✨</span> <strong>5-Star Luxury & #1 Gym on the List</strong>
+          </div>
+        </div>
+
+        <div class="price-strip">
+          <div class="price-main">
+            <span class="price-amount">$4,222</span>
+            <span class="price-sub">7 nights · ~$603/night</span>
+          </div>
+          <div class="dates-badge">Fri 11/20 or Sun 11/22</div>
+        </div>
+
+        <div class="card-body">
+          <!-- Boys Action -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏓</span> Boys' On-Site Action</span>
+              <span class="score-badge score-good">8.5 / 10 Luxury</span>
+            </div>
+            <p class="section-desc">Upscale game room with ping pong, billiards, foosball, video games; basketball, pickleball, and volleyball courts. Polished 5-star resort atmosphere rather than a noisy waterpark.</p>
+          </div>
+
+          <!-- Gym Quality -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🏋️‍♀️</span> Sinem's Gym Quality</span>
+              <span class="score-badge score-top">10 / 10 ★ Best Gym</span>
+            </div>
+            <p class="section-desc">Two modern fitness centers with steam rooms, Peloton bikes, heavy lifters' equipment, and access to full Driftwood Spa.</p>
+          </div>
+
+          <!-- Tanning & Pool -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">☀️</span> November Tanning & Pool</span>
+              <span class="score-badge score-good">8.5 / 10 Heated 83°F</span>
+            </div>
+            <p class="section-desc">Two pools heated to 83°F year-round with poolside food/drink service. Hillside location stays 3–5°F warmer and sunnier than the beach strand.</p>
+          </div>
+
+          <!-- Family Fun -->
+          <div class="section-block">
+            <div class="section-header">
+              <span class="section-title"><span class="emoji">🌴</span> Surrounding Family Fun</span>
+              <span class="score-badge score-top">North County Hub</span>
+            </div>
+            <p class="section-desc">Carlsbad Lagoon paddleboarding & watersports (10 min), LEGOLAND (10 min), coastal beaches of Carlsbad and Encinitas (8 min).</p>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="links-group">
+            <a href="https://www.tripadvisor.com/Search?q=Four+Seasons+Residence+Club+Aviara" target="_blank" rel="noopener" class="ref-link">TripAdvisor Reviews ↗</a>
+            <a href="https://www.redweek.com/resort/P2792" target="_blank" rel="noopener" class="ref-link">RedWeek R1543394 (Fri) ↗</a>
+            <a href="https://www.redweek.com/resort/P2792" target="_blank" rel="noopener" class="ref-link">RedWeek R1486668 (Sun) ↗</a>
+          </div>
+          <span class="ref-code">Refs: R1543394 / R1486668</span>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Matrix / Table View (for side-by-side skimming) -->
+    <div id="matrix-view">
+      <table>
+        <thead>
+          <tr>
+            <th>Resort</th>
+            <th>Price & Dates</th>
+            <th>Boys' Action</th>
+            <th>Sinem's Gym</th>
+            <th>Nov Tanning</th>
+            <th>Surroundings</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="table-resort-name">Wyndham Oceanside</span>
+              <span class="table-resort-loc">Oceanside · ★ 4.0</span>
+            </td>
+            <td><strong>$1,745</strong> (6n)<br><span style="font-size:11px;color:#64748b;">Sat-Fri</span></td>
+            <td>Good (compact)<br>Ping pong, game rm</td>
+            <td><span class="score-badge score-caution">6/10</span> Hotel basic, sauna</td>
+            <td><span class="score-badge score-caution">Risky</span> ~65-68°F windy</td>
+            <td><strong>10/10</strong> Steps to Pier, strand, LEGOLAND</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="table-resort-name">Westin Mission Hills</span>
+              <span class="table-resort-loc">Rancho Mirage · ★ 4.2</span>
+            </td>
+            <td><strong>$1,742</strong> (Fri)<br><strong>$2,505</strong> (Sun)</td>
+            <td><span class="score-badge score-top">10/10</span> 155ft slide, bowling, arcade, courts</td>
+            <td><span class="score-badge score-top">9/10</span> Pelotons, TRX, racks, steam</td>
+            <td><span class="score-badge score-top">10/10</span> Mid-70s°F, mountains, no wind</td>
+            <td>PS Tramway (20m), Zoo (15m), Surf Club (15m)</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="table-resort-name">Westin Desert Willow</span>
+              <span class="table-resort-loc">Palm Desert · ★ 4.5</span>
+            </td>
+            <td><strong>$2,741</strong> (7n)<br><span style="font-size:11px;color:#64748b;">Sat-Sat</span></td>
+            <td><span class="score-badge score-top">9.5/10</span> 159ft slide, arcade, courts</td>
+            <td><span class="score-badge score-top">9/10</span> 1,408 sq ft 24/7, sauna</td>
+            <td><span class="score-badge score-top">10/10</span> 4 pool decks, mountain views</td>
+            <td>El Paseo (10m), Living Desert Zoo (10m)</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="table-resort-name">Marriott Shadow Ridge II</span>
+              <span class="table-resort-loc">Palm Desert · ★ 4.0</span>
+            </td>
+            <td><strong>$3,069</strong> (7n)<br><span style="font-size:11px;color:#64748b;">Sun-Sun</span></td>
+            <td><span class="score-badge score-top">9.5/10</span> Chuckwalla slide, mini-golf</td>
+            <td><span class="score-badge score-good">8.5/10</span> Mirage Center, lap pool</td>
+            <td><span class="score-badge score-top">10/10</span> 4 complexes, sun decks</td>
+            <td>Joshua Tree, Living Desert, BMW track</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="table-resort-name">Marriott Newport Coast</span>
+              <span class="table-resort-loc">Newport Coast · ★ 4.3</span>
+            </td>
+            <td><strong>$3,077</strong> (Fri)<br><strong>$3,405</strong> (Sat)</td>
+            <td><span class="score-badge score-good">9/10</span> Theater, arcade, courts (no slide)</td>
+            <td><span class="score-badge score-good">8.5/10</span> Modern, ocean cardio, sauna</td>
+            <td><span class="score-badge score-good">8/10</span> Blufftop heated, glass windbreak</td>
+            <td>Crystal Cove trails, Back Bay, ferry</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="table-resort-name">Marriott Desert Springs</span>
+              <span class="table-resort-loc">Palm Desert · ★ 4.2</span>
+            </td>
+            <td><strong>$3,306</strong> (7n)<br><span style="font-size:11px;color:#64748b;">Sat-Sat</span></td>
+            <td><span class="score-badge score-good">9/10</span> 7 pools, JW grounds, flamingos</td>
+            <td><span class="score-badge score-good">8.5/10</span> 24h gym, stretch classes</td>
+            <td><span class="score-badge score-top">10/10</span> 7 pool decks, spacious villas</td>
+            <td>Lake paths, El Paseo, Living Desert</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="table-resort-name">Wyndham Dolphin's Cove</span>
+              <span class="table-resort-loc">Anaheim · ★ 3.7</span>
+            </td>
+            <td><strong>$1,742</strong> (7n)<br><span style="font-size:11px;color:#64748b;">Sat-Sat</span></td>
+            <td><span class="score-badge score-caution">6.5/10</span> Small game rm, 1 bath</td>
+            <td><span class="score-badge score-caution">5/10</span> Very basic cardio rm</td>
+            <td><span class="score-badge score-caution">6/10</span> Courtyard apt pool</td>
+            <td>Disneyland & shuttle (&lt;1 mile)</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="table-resort-name">Four Seasons Aviara</span>
+              <span class="table-resort-loc">Carlsbad · ★ 4.5</span>
+            </td>
+            <td><strong>$4,222</strong> (7n)<br><span style="font-size:11px;color:#64748b;">Fri or Sun</span></td>
+            <td><span class="score-badge score-good">8.5/10</span> 5-star game room, courts</td>
+            <td><span class="score-badge score-top">10/10</span> Pelotons, 2 gyms, spa</td>
+            <td><span class="score-badge score-good">8.5/10</span> 83°F heated, sunny hillside</td>
+            <td>Carlsbad Lagoon, LEGOLAND, beaches</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <script>
+    // Elements
+    const searchInput = document.getElementById('search-input');
+    const clearSearchBtn = document.getElementById('clear-search');
+    const chipButtons = document.querySelectorAll('.chip');
+    const sortSelect = document.getElementById('sort-select');
+    const cardsContainer = document.getElementById('cards-container');
+    const matrixView = document.getElementById('matrix-view');
+    const emptyState = document.getElementById('empty-state');
+    const resultsCount = document.getElementById('results-count');
+    const btnCards = document.getElementById('btn-cards');
+    const btnMatrix = document.getElementById('btn-matrix');
+
+    const cardElements = Array.from(document.querySelectorAll('.resort-card'));
+
+    // State
+    let activeFilter = 'all';
+    let searchQuery = '';
+
+    // Search event
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      clearSearchBtn.style.display = searchQuery ? 'block' : 'none';
+      filterAndSort();
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchQuery = '';
+      clearSearchBtn.style.display = 'none';
+      filterAndSort();
+      searchInput.focus();
+    });
+
+    // Chip filter clicks
+    chipButtons.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chipButtons.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeFilter = chip.getAttribute('data-filter');
+        filterAndSort();
+      });
+    });
+
+    // Sort select change
+    sortSelect.addEventListener('change', () => {
+      filterAndSort();
+    });
+
+    // View toggle
+    btnCards.addEventListener('click', () => {
+      btnCards.classList.add('active');
+      btnMatrix.classList.remove('active');
+      cardsContainer.style.display = 'block';
+      matrixView.style.display = 'none';
+    });
+
+    btnMatrix.addEventListener('click', () => {
+      btnMatrix.classList.add('active');
+      btnCards.classList.remove('active');
+      cardsContainer.style.display = 'none';
+      matrixView.style.display = 'block';
+    });
+
+    function filterAndSort() {
+      let visibleCount = 0;
+
+      // Filter
+      cardElements.forEach(card => {
+        const region = card.dataset.region;
+        const tags = (card.dataset.tags + ' ' + card.innerText).toLowerCase();
+        const boysScore = parseFloat(card.dataset.boys);
+        const gymScore = parseFloat(card.dataset.gym);
+
+        let matchesFilter = false;
+        if (activeFilter === 'all') {
+          matchesFilter = true;
+        } else if (activeFilter === 'desert' && region === 'desert') {
+          matchesFilter = true;
+        } else if (activeFilter === 'coastal' && region === 'coastal') {
+          matchesFilter = true;
+        } else if (activeFilter === 'anaheim' && region === 'anaheim') {
+          matchesFilter = true;
+        } else if (activeFilter === 'waterslide' && tags.includes('waterslide')) {
+          matchesFilter = true;
+        } else if (activeFilter === 'topgym' && gymScore >= 9.0) {
+          matchesFilter = true;
+        }
+
+        const matchesSearch = !searchQuery || tags.includes(searchQuery);
+
+        if (matchesFilter && matchesSearch) {
+          card.style.display = 'block';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      // Sort
+      const sortMode = sortSelect.value;
+      const sortedCards = [...cardElements].sort((a, b) => {
+        if (sortMode === 'price-asc') {
+          return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+        } else if (sortMode === 'price-desc') {
+          return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+        } else if (sortMode === 'gym-desc') {
+          return parseFloat(b.dataset.gym) - parseFloat(a.dataset.gym);
+        } else if (sortMode === 'boys-desc') {
+          return parseFloat(b.dataset.boys) - parseFloat(a.dataset.boys);
+        } else if (sortMode === 'rating-desc') {
+          return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+        }
+        return 0; // default order
+      });
+
+      sortedCards.forEach(card => cardsContainer.appendChild(card));
+
+      // Update counters & state
+      resultsCount.textContent = `Showing ${visibleCount} of ${cardElements.length} resorts`;
+      emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>
